@@ -4,6 +4,7 @@
 
 Selamat datang di Aplikasi SIDUG (Sistem Informasi Data Umat Gereja)
 Aplikasi ini merupakan rewrite dari aplikasi [sisfopringgo](https://github.com/dhimaskirana/sisfopringgo/) yang saya kembangkan pada tahun 2018 menggunakan [Codeigniter](https://www.codeigniter.com/) versi 3.1.13 namun versi lebih sederhana dengan menghilangkan fitur Lingkungan dan Wilayah
+
 Lingkungan dan Wilayah merupakan konsep hirarki pada gereja katolik, sedangkan aplikasi SIDUG diharapkan bisa digunakan secara universal oleh gereja katolik maupun gereja kristen.
 
 ## Fitur Aplikasi SIDUG
