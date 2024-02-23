@@ -79,6 +79,8 @@
 				<ol>
 					<li>Menampilkan jumlah seluruh umat di gereja</li>
 					<li>Menampilkan jumlah umat berjenis kelamin laki-laki / perempuan</li>
+					<li>Statistik berdasarkan golongan darah</li>
+					<li>Statistik berdasarkan kategori umur</li>
 				</ol>
 			</div>
 		</div>
