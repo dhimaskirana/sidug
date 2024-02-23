@@ -4,7 +4,6 @@ namespace App\Controllers;
 
 use CodeIgniter\Shield\Entities\User;
 use CodeIgniter\Shield\Models\UserModel;
-use \Hermawan\DataTables\DataTable;
 
 class Pengguna extends BaseController {
     public function index(): string {
@@ -17,31 +16,35 @@ class Pengguna extends BaseController {
     }
 
     public function tambah() {
-        $validation =  \Config\Services::validation();
-        $validation->setRules(['username' => 'required', 'email' => 'required', 'password' => 'required', 'roles' => 'required']);
-        $isDataValid = $validation->withRequest($this->request)->run();
+        if ($this->request->getPost()) {
+            $validation =  \Config\Services::validation();
+            $validation->setRules(['username' => 'required', 'email' => 'required', 'password' => 'required', 'repeat_password' => 'required|matches[password]', 'roles' => 'required']);
+            $isDataValid = $validation->withRequest($this->request)->run();
 
-        if ($isDataValid) {
-            $users = auth()->getProvider();
+            if ($isDataValid) {
+                $users = auth()->getProvider();
 
-            $user = new User([
-                'username' => $this->request->getPost('username'),
-                'email'    => $this->request->getPost('email'),
-                'password' => $this->request->getPost('password'),
-            ]);
-            $users->save($user);
+                $user = new User([
+                    'username' => $this->request->getPost('username'),
+                    'email'    => $this->request->getPost('email'),
+                    'password' => $this->request->getPost('password'),
+                ]);
+                $users->save($user);
 
-            // To get the complete user object with ID, we need to get from the database
-            $user = $users->findById($users->getInsertID());
+                // To get the complete user object with ID, we need to get from the database
+                $user = $users->findById($users->getInsertID());
 
-            if ($this->request->getPost('roles') == 'admin') {
-                $user->addGroup('admin');
+                if ($this->request->getPost('roles') == 'admin') {
+                    $user->addGroup('admin');
+                } else {
+                    // Add to default group
+                    $users->addToDefaultGroup($user);
+                }
+
+                return redirect()->route('Pengguna::index')->with('message', 'User berhasil dibuat!');
             } else {
-                // Add to default group
-                $users->addToDefaultGroup($user);
+                return redirect()->back()->withInput()->with('errors', $validation->getErrors());
             }
-
-            return redirect()->route('Pengguna::index')->with('message', 'User berhasil dibuat!');
         }
 
         $data = [
@@ -54,28 +57,32 @@ class Pengguna extends BaseController {
         $users = auth()->getProvider();
         $user = $users->findById($id);
 
-        $validation =  \Config\Services::validation();
-        $validation->setRules(['username' => 'required', 'email' => 'required', 'roles' => 'required']);
-        $isDataValid = $validation->withRequest($this->request)->run();
+        if ($this->request->getPost()) {
+            $validation =  \Config\Services::validation();
+            $validation->setRules(['username' => 'required', 'email' => 'required', 'roles' => 'required']);
+            $isDataValid = $validation->withRequest($this->request)->run();
 
-        if ($isDataValid) {
-            foreach ($user->getGroups() as $role) {
-                $user->removeGroup($role);
-            }
-            $user->fill([
-                'username' => $this->request->getPost('username'),
-                'email'    => $this->request->getPost('email'),
-            ]);
+            if ($isDataValid) {
+                foreach ($user->getGroups() as $role) {
+                    $user->removeGroup($role);
+                }
+                $user->fill([
+                    'username' => $this->request->getPost('username'),
+                    'email'    => $this->request->getPost('email'),
+                ]);
 
-            if ($this->request->getPost('roles') == 'admin') {
-                $user->addGroup('admin');
+                if ($this->request->getPost('roles') == 'admin') {
+                    $user->addGroup('admin');
+                } else {
+                    // Add to default group
+                    $users->addToDefaultGroup($user);
+                }
+
+                $users->save($user);
+                return redirect()->back()->with('message', 'User berhasil diupdate!');
             } else {
-                // Add to default group
-                $users->addToDefaultGroup($user);
+                return redirect()->back()->withInput()->with('errors', $validation->getErrors());
             }
-
-            $users->save($user);
-            return redirect()->back()->with('message', 'User berhasil diupdate!');
         }
 
         $data = [
@@ -83,6 +90,33 @@ class Pengguna extends BaseController {
             'user' => $user
         ];
         return view('pengguna/edit', $data);
+    }
+
+    public function update_password($id) {
+        $users = auth()->getProvider();
+        $user = $users->findById($id);
+
+        if ($this->request->getPost()) {
+            $validation =  \Config\Services::validation();
+            $validation->setRules(['password' => 'required', 'repeat_password' => 'required|matches[password]']);
+            $isDataValid = $validation->withRequest($this->request)->run();
+
+            if ($isDataValid) {
+                $user->fill([
+                    'password' => $this->request->getPost('password')
+                ]);
+                $users->save($user);
+                return redirect()->back()->with('message', 'Password user berhasil diupdate!');
+            } else {
+                return redirect()->back()->withInput()->with('errors', $validation->getErrors());
+            }
+        }
+
+        $data = [
+            'current_page' => 'pengguna',
+            'user' => $user
+        ];
+        return view('pengguna/update-password', $data);
     }
 
     public function delete($id) {

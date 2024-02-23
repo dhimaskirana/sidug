@@ -17,6 +17,7 @@ $routes->group(
         $routes->get('/pengguna', 'Pengguna::index');
         $routes->add('/pengguna/tambah', 'Pengguna::tambah');
         $routes->add('/pengguna/edit/(:any)', 'Pengguna::edit/$1');
+        $routes->add('/pengguna/update-password/(:any)', 'Pengguna::update_password/$1');
         $routes->get('/pengguna/delete/(:any)', 'Pengguna::delete/$1');
 
         $routes->get('/data-umat', 'DataUmat::index');
